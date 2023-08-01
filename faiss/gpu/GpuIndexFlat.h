@@ -25,7 +25,7 @@ class FlatIndex;
 
 struct GpuIndexFlatConfig : public GpuIndexConfig {
     /// Whether or not data is stored as float16
-    bool ALIGNED(8) useFloat16 = false;
+    bool ALIGNED(8) useFloat16 = false; //TODO(Hongwei.Liu): figure out why useFloat16 needs aligning to 8
 
     /// Deprecated: no longer used
     /// Previously used to indicate whether internal storage of vectors is

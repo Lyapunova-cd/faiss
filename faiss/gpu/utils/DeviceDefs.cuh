@@ -18,10 +18,11 @@ namespace gpu {
 #endif
 
 // We validate this against the actual architecture in device initialization
-constexpr int kWarpSize = 32;
+constexpr int kWarpSize = 32; // TODO(Hongwei.Liu): use 64 for BI-V100
 
 // This is a memory barrier for intra-warp writes to shared memory.
 __forceinline__ __device__ void warpFence() {
+    //TODO(Hongwei.Liu): figure out whether Iluvatar compiler supports __syncwarp() or __threadfence_block()
 #if CUDA_VERSION >= 9000
     __syncwarp();
 #else
