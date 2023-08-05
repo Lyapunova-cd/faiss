@@ -384,6 +384,8 @@ void StandardGpuResourcesImpl::initializeForDevice(int device) {
     auto blasStatus = cublasCreate(&blasHandle);
     FAISS_ASSERT(blasStatus == CUBLAS_STATUS_SUCCESS);
     blasHandles_[device] = blasHandle;
+    /* TODO(HOngwei.Liu): figure out whether BI-V100 supports PRECISION_REDUCTION
+    mode and then compare performance on different setting */
 
     // For CUDA 10 on V100, enabling tensor core usage would enable automatic
     // rounding down of inputs to f16 (though accumulate in f32) which results
@@ -396,7 +398,7 @@ void StandardGpuResourcesImpl::initializeForDevice(int device) {
 
     FAISS_ASSERT(allocs_.count(device) == 0);
     allocs_[device] = std::unordered_map<void*, AllocRequest>();
-
+    // TODO(Hongwei.Liu) faiss think that 1.5GiB vram is enough.
     FAISS_ASSERT(tempMemory_.count(device) == 0);
     auto mem = std::unique_ptr<StackDeviceMemory>(new StackDeviceMemory(
             this,
@@ -463,7 +465,7 @@ void* StandardGpuResourcesImpl::allocMemory(const AllocRequest& req) {
     if (req.size == 0) {
         return nullptr;
     }
-
+    // TODO(Hongwei.Liu): figure out the gpu va alignment for BI-V100
     // cudaMalloc guarantees allocation alignment to 256 bytes; do the same here
     // for alignment purposes (to reduce memory transaction overhead etc)
     auto adjReq = req;

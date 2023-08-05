@@ -58,7 +58,7 @@ GpuIndex::GpuIndex(
             config_.device);
 
     FAISS_THROW_IF_NOT_MSG(dims > 0, "Invalid number of dimensions");
-
+    // TODO(Hongwei.Liu): figure out whether BI-V100 supports unified addressing
     FAISS_THROW_IF_NOT_FMT(
             config_.memorySpace == MemorySpace::Device ||
                     (config_.memorySpace == MemorySpace::Unified &&

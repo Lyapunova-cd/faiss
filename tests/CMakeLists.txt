@@ -44,6 +44,7 @@ else()
   target_link_libraries(faiss_test PRIVATE faiss)
 endif()
 
+cmake_policy(SET CMP0135 NEW)
 include(FetchContent)
 FetchContent_Declare(googletest
   URL "https://github.com/google/googletest/archive/release-1.12.1.tar.gz")

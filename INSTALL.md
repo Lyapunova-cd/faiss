@@ -127,12 +127,11 @@ Several options can be passed to CMake, among which:
   (more information about the values for the `BLA_VENDOR` option can be found in
   the [CMake docs](https://cmake.org/cmake/help/latest/module/FindBLAS.html)),
 - GPU-related options:
-  - `-DCUDAToolkit_ROOT=/path/to/cuda-10.1` in order to hint to the path of
+  - `-DCUDAToolkit_ROOT=/path/to/corex-3.0.0` in order to hint to the path of
   the CUDA toolkit (for more information, see
   [CMake docs](https://cmake.org/cmake/help/latest/module/FindCUDAToolkit.html)),
-  - `-DCMAKE_CUDA_ARCHITECTURES="75;72"` for specifying which GPU architectures
-  to build against (see [CUDA docs](https://developer.nvidia.com/cuda-gpus) to
-  determine which architecture(s) you should pick),
+  - `-DCMAKE_CUDA_ARCHITECTURES="ivcore11;ivcore10"` for specifying which GPU
+  architectures to build against to determine which architecture(s) you should pick,
 - python-related options:
   - `-DPython_EXECUTABLE=/path/to/python3.7` in order to build a python
   interface for a different python than the default one (see
