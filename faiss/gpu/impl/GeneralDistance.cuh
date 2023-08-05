@@ -120,7 +120,7 @@ __launch_bounds__(kWarpSize* kWarpSize) __global__ void generalDistance(
 
         for (idx_t k = threadIdx.x; k < limit; k += kWarpSize * kDimMultiple) {
             // Load query tile
-#pragma unroll
+// #pragma unroll
             for (int i = 0; i < kDimMultiple; ++i) {
                 queryTileBase[threadIdx.x + i * kWarpSize] =
                         queryBase[k + i * kWarpSize];
@@ -139,7 +139,7 @@ __launch_bounds__(kWarpSize* kWarpSize) __global__ void generalDistance(
 
         // Handle remainder
         if (limit < query.getSize(1)) {
-#pragma unroll
+// #pragma unroll
             for (int i = 0; i < kDimMultiple; ++i) {
                 idx_t k = limit + threadIdx.x + i * kWarpSize;
                 bool kInBounds = k < query.getSize(1);
@@ -156,7 +156,7 @@ __launch_bounds__(kWarpSize* kWarpSize) __global__ void generalDistance(
             idx_t remainder = query.getSize(1) - limit;
 
             // thread (y, x) does (query y, vec x)
-#pragma unroll
+// #pragma unroll
             for (idx_t i = 0; i < remainder; ++i) {
                 acc.handle(
                         ConvertTo<float>::to(queryTileBase[i]),
@@ -187,7 +187,7 @@ __launch_bounds__(kWarpSize* kWarpSize) __global__ void generalDistance(
             __syncthreads();
 
             // thread (y, x) does (query y, vec x)
-#pragma unroll
+// #pragma unroll
             for (int i = 0; i < kWarpSize; ++i) {
                 acc.handle(
                         ConvertTo<float>::to(queryTileBase[i]),

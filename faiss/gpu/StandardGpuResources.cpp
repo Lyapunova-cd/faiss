@@ -351,10 +351,9 @@ void StandardGpuResourcesImpl::initializeForDevice(int device) {
 
     // Our code is pre-built with and expects warpSize == 32, validate that
     FAISS_ASSERT_FMT(
-            prop.warpSize == 32,
-            "Device id %d does not have expected warpSize of 32",
+            prop.warpSize == 64,
+            "Device id %d does not have expected warpSize of 64",
             device);
-    // TODO(Hongwei.Liu): figure out BI-V100's warp size and compatible with it
 
     // Create streams
     cudaStream_t defaultStream = 0;

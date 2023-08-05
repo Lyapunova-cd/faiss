@@ -116,11 +116,9 @@ struct WarpPackedBits<uint8_t, 6> {
         // The offsets are the following (concatenated together):
         // 0x2460
         // We can thus use bfe.u32 as a lookup table for the above sequence.
-        unsigned int pos;
-        GET_BITFIELD_U32(pos, 0x2460, (laneId & 0x3) * 4, 4);
+        unsigned int pos = getBitfield<unsigned int>(0x2460, (laneId & 0x3) * 4, 4);
 
-        unsigned int out;
-        GET_BITFIELD_U32(out, vConcat, pos, 6);
+        unsigned int out = getBitfield<unsigned int>(0x2460, (laneId & 0x3) * 4, 4);
 
         return out;
     }
@@ -224,11 +222,9 @@ struct WarpPackedBits<uint8_t, 5> {
         // The offsets are the following (concatenated together):
         // 0x36147250
         // We can thus use bfe.u32 as a lookup table for the above sequence.
-        unsigned int pos;
-        GET_BITFIELD_U32(pos, 0x36147250, (laneId & 0x7) * 4, 4);
+        unsigned int pos = getBitfield<unsigned int>(0x36147250, (laneId & 0x7) * 4, 4);
 
-        unsigned int out;
-        GET_BITFIELD_U32(out, vConcat, pos, 5);
+        unsigned int out = getBitfield<unsigned int>(vConcat, pos, 5);
 
         return out;
     }

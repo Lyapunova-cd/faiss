@@ -18,7 +18,7 @@ namespace gpu {
 #endif
 
 // We validate this against the actual architecture in device initialization
-constexpr int kWarpSize = 32; // TODO(Hongwei.Liu): use 64 for BI-V100
+constexpr int kWarpSize = 64;
 
 // This is a memory barrier for intra-warp writes to shared memory.
 __forceinline__ __device__ void warpFence() {

@@ -20,6 +20,7 @@ namespace gpu {
 // 512, 8
 // 1024, 8
 // 2048, 8
+// 4096, 8
 
 WARP_SELECT_DECL(float, true, 1);
 WARP_SELECT_DECL(float, true, 32);
@@ -28,9 +29,8 @@ WARP_SELECT_DECL(float, true, 128);
 WARP_SELECT_DECL(float, true, 256);
 WARP_SELECT_DECL(float, true, 512);
 WARP_SELECT_DECL(float, true, 1024);
-#if GPU_MAX_SELECTION_K >= 2048
 WARP_SELECT_DECL(float, true, 2048);
-#endif
+WARP_SELECT_DECL(float, true, 4096);
 
 WARP_SELECT_DECL(float, false, 1);
 WARP_SELECT_DECL(float, false, 32);
@@ -39,9 +39,8 @@ WARP_SELECT_DECL(float, false, 128);
 WARP_SELECT_DECL(float, false, 256);
 WARP_SELECT_DECL(float, false, 512);
 WARP_SELECT_DECL(float, false, 1024);
-#if GPU_MAX_SELECTION_K >= 2048
 WARP_SELECT_DECL(float, false, 2048);
-#endif
+WARP_SELECT_DECL(float, false, 4096);
 
 void runWarpSelect(
         Tensor<float, 2, true>& in,
@@ -50,13 +49,11 @@ void runWarpSelect(
         bool dir,
         int k,
         cudaStream_t stream) {
-    FAISS_ASSERT(k <= 2048);
+    FAISS_ASSERT(k <= 4096);
 
     if (dir) {
         if (k == 1) {
             WARP_SELECT_CALL(float, true, 1);
-        } else if (k <= 32) {
-            WARP_SELECT_CALL(float, true, 32);
         } else if (k <= 64) {
             WARP_SELECT_CALL(float, true, 64);
         } else if (k <= 128) {
@@ -67,16 +64,14 @@ void runWarpSelect(
             WARP_SELECT_CALL(float, true, 512);
         } else if (k <= 1024) {
             WARP_SELECT_CALL(float, true, 1024);
-#if GPU_MAX_SELECTION_K >= 2048
         } else if (k <= 2048) {
             WARP_SELECT_CALL(float, true, 2048);
-#endif
+        } else if (k <= 4096) {
+            WARP_SELECT_CALL(float, true, 4096);
         }
     } else {
         if (k == 1) {
             WARP_SELECT_CALL(float, false, 1);
-        } else if (k <= 32) {
-            WARP_SELECT_CALL(float, false, 32);
         } else if (k <= 64) {
             WARP_SELECT_CALL(float, false, 64);
         } else if (k <= 128) {
@@ -87,10 +82,10 @@ void runWarpSelect(
             WARP_SELECT_CALL(float, false, 512);
         } else if (k <= 1024) {
             WARP_SELECT_CALL(float, false, 1024);
-#if GPU_MAX_SELECTION_K >= 2048
         } else if (k <= 2048) {
             WARP_SELECT_CALL(float, false, 2048);
-#endif
+        } else if (k <= 4096) {
+            WARP_SELECT_CALL(float, false, 4096);
         }
     }
 }

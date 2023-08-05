@@ -77,9 +77,11 @@ set(FAISS_GPU_SRC
   utils/warpselect/WarpSelectFloatF512.cu
   utils/warpselect/WarpSelectFloatF1024.cu
   utils/warpselect/WarpSelectFloatF2048.cu
+  utils/warpselect/WarpSelectFloatF4096.cu
   utils/warpselect/WarpSelectFloatT512.cu
   utils/warpselect/WarpSelectFloatT1024.cu
   utils/warpselect/WarpSelectFloatT2048.cu
+  utils/warpselect/WarpSelectFloatT4096.cu
 )
 
 set(FAISS_GPU_HEADERS
@@ -191,7 +193,7 @@ function(generate_ivf_interleaved_code)
     "128|1|1"
     "128|128|3"
     "128|256|4"
-    "128|32|2"
+    "128|64|2"
     "128|512|8"
     "128|64|3"
     "64|2048|8"
@@ -259,8 +261,9 @@ foreach(header ${FAISS_GPU_HEADERS})
   )
 endforeach()
 
+# set(CMAKE_CUDA_FLAGS "-fPIC --cuda-gpu-arch=ivcore10 --cuda-path=/usr/local/corex")
 find_package(CUDAToolkit REQUIRED)
 target_link_libraries(faiss PRIVATE CUDA::cudart CUDA::cublas $<$<BOOL:${FAISS_ENABLE_RAFT}>:raft::raft> $<$<BOOL:${FAISS_ENABLE_RAFT}>:nvidia::cutlass::cutlass>)
 target_link_libraries(faiss_avx2 PRIVATE CUDA::cudart CUDA::cublas $<$<BOOL:${FAISS_ENABLE_RAFT}>:raft::raft> $<$<BOOL:${FAISS_ENABLE_RAFT}>:nvidia::cutlass::cutlass>)
-target_compile_options(faiss PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-Xfatbin=-compress-all --expt-extended-lambda --expt-relaxed-constexpr>)
-target_compile_options(faiss_avx2 PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-Xfatbin=-compress-all --expt-extended-lambda --expt-relaxed-constexpr>)
+# target_compile_options(faiss PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-Xfatbin=-compress-all --expt-extended-lambda --expt-relaxed-constexpr>)
+# target_compile_options(faiss_avx2 PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-Xfatbin=-compress-all --expt-extended-lambda --expt-relaxed-constexpr>)

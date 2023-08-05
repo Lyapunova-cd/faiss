@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#include <faiss/gpu/utils/warpselect/WarpSelectImpl.cuh>
+#include <faiss/gpu/utils/blockselect/BlockSelectImpl.cuh>
 
 namespace faiss {
 namespace gpu {
 
-WARP_SELECT_IMPL(float, false, 2048, 8);
+BLOCK_SELECT_IMPL(float, true, 4096, 8);
 
-} // namespace gpu
+}
 } // namespace faiss

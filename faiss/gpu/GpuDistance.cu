@@ -393,7 +393,7 @@ void bfKnn_shard_database(
     args_batch.ignoreOutDistances = false;
     args_batch.outIndices = labels.data();
     for (idx_t i = 0; i < args.numVectors; i += shard_size) {
-        args_batch.numVectors = min(shard_size, args.numVectors - i);
+        args_batch.numVectors = std::min(shard_size, static_cast<size_t>(args.numVectors - i));
         args_batch.vectors =
                 (char*)args.vectors + distance_size * args.dims * i;
         args_batch.vectorNorms =
@@ -506,7 +506,7 @@ void bfKnn_tiling(
             "bfKnn: outIndices must be provided (passed null)");
     for (idx_t i = 0; i < args.numQueries; i += shard_size) {
         GpuDistanceParams args_batch = args;
-        args_batch.numQueries = min(shard_size, args.numQueries - i);
+        args_batch.numQueries = std::min(shard_size, static_cast<size_t>(args.numQueries - i));
         args_batch.queries =
                 (char*)args.queries + distance_size * args.dims * i;
         if (!args_batch.ignoreOutDistances) {

@@ -10,7 +10,7 @@
 namespace faiss {
 namespace gpu {
 
-WARP_SELECT_IMPL(float, false, 2048, 8);
+WARP_SELECT_IMPL(float, false, 4096, 8);
 
-} // namespace gpu
+}
 } // namespace faiss

@@ -174,7 +174,7 @@ struct BlockSelect {
             threadV[i] = initV;
         }
 
-        int laneId = getLaneId();
+        int laneId = threadIdx.x % kWarpSize;
         int warpId = threadIdx.x / kWarpSize;
         warpK = sharedK + warpId * kTotalWarpSortSize;
         warpV = sharedV + warpId * kTotalWarpSortSize;
@@ -241,12 +241,12 @@ struct BlockSelect {
     /// per-thread queues with the warp-wide queue, creating a sorted
     /// list across both
     __device__ inline void mergeWarpQ() {
-        int laneId = getLaneId();
+        int laneId = threadIdx.x % kWarpSize;;
 
         // Sort all of the per-thread queues
         warpSortAnyRegisters<K, V, NumThreadQ, !Dir, Comp>(threadK, threadV);
 
-        constexpr int kNumWarpQRegisters = NumWarpQ / kWarpSize;
+        constexpr int kNumWarpQRegisters = (NumWarpQ < 64 ? 64 : NumWarpQ) / kWarpSize;
         K warpKRegisters[kNumWarpQRegisters];
         V warpVRegisters[kNumWarpQRegisters];
 
@@ -376,7 +376,7 @@ struct BlockSelect<K, V, Dir, Comp, 1, NumThreadQ, ThreadsPerBlock> {
         }
 
         // Each warp writes out a single value
-        int laneId = getLaneId();
+        int laneId = threadIdx.x % kWarpSize;
         int warpId = threadIdx.x / kWarpSize;
 
         if (laneId == 0) {
@@ -437,7 +437,7 @@ template <
         int NumThreadQ,
         int ThreadsPerBlock>
 struct WarpSelect {
-    static constexpr int kNumWarpQRegisters = NumWarpQ / kWarpSize;
+    static constexpr int kNumWarpQRegisters = (NumWarpQ < 64 ? 64 : NumWarpQ) / kWarpSize;
 
     __device__ inline WarpSelect(K initKVal, V initVVal, int k)
             : initK(initKVal),
@@ -546,7 +546,7 @@ struct WarpSelect {
 
     /// Dump final k selected values for this warp out
     __device__ inline void writeOut(K* outK, V* outV, int k) {
-        int laneId = getLaneId();
+        int laneId = threadIdx.x % kWarpSize;
 
 #pragma unroll
         for (int i = 0; i < kNumWarpQRegisters; ++i) {
@@ -632,7 +632,7 @@ struct WarpSelect<K, V, Dir, Comp, 1, NumThreadQ, ThreadsPerBlock> {
 
     /// Dump final k selected values for this warp out
     __device__ inline void writeOut(K* outK, V* outV, int k) {
-        if (getLaneId() == 0) {
+        if (threadIdx.x % kWarpSize == 0) {
             *outK = threadK;
             *outV = threadV;
         }

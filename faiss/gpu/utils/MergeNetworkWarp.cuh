@@ -93,9 +93,9 @@ template <
         bool IsBitonic>
 inline __device__ void warpBitonicMergeLE16(K& k, V& v) {
     static_assert(utils::isPowerOf2(L), "L must be a power-of-2");
-    static_assert(L <= kWarpSize / 2, "merge list size must be <= 16");
+    static_assert(L <= kWarpSize / 2, "merge list size must be <= 32");
 
-    int laneId = getLaneId();
+    int laneId = threadIdx.x % kWarpSize;;
 
     if (!IsBitonic) {
         // Reverse the first comparison stage.
@@ -418,7 +418,7 @@ template <
         int N2,
         bool Dir,
         typename Comp,
-        bool FullMerge = true>
+        bool FullMerge>
 inline __device__ void warpMergeAnyRegisters(
         K k1[N1],
         V v1[N1],
@@ -507,7 +507,7 @@ struct BitonicSortStep {
         BitonicSortStep<K, V, kSizeB, Dir, Comp>::sort(bK, bV);
 
         // Merge halves
-        warpMergeAnyRegisters<K, V, kSizeA, kSizeB, Dir, Comp>(aK, aV, bK, bV);
+        warpMergeAnyRegisters<K, V, kSizeA, kSizeB, Dir, Comp, true>(aK, aV, bK, bV);
 
 #pragma unroll
         for (int i = 0; i < kSizeA; ++i) {
@@ -529,13 +529,14 @@ struct BitonicSortStep<K, V, 1, Dir, Comp> {
     static inline __device__ void sort(K k[1], V v[1]) {
         // Update this code if this changes
         // should go from 1 -> kWarpSize in multiples of 2
-        static_assert(kWarpSize == 32, "unexpected warp size");
+        // static_assert(kWarpSize == 32, "unexpected warp size");
 
         warpBitonicMergeLE16<K, V, 1, Dir, Comp, false>(k[0], v[0]);
         warpBitonicMergeLE16<K, V, 2, Dir, Comp, false>(k[0], v[0]);
         warpBitonicMergeLE16<K, V, 4, Dir, Comp, false>(k[0], v[0]);
         warpBitonicMergeLE16<K, V, 8, Dir, Comp, false>(k[0], v[0]);
         warpBitonicMergeLE16<K, V, 16, Dir, Comp, false>(k[0], v[0]);
+        warpBitonicMergeLE16<K, V, 32, Dir, Comp, false>(k[0], v[0]);
     }
 };
 
