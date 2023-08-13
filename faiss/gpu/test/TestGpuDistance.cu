@@ -48,7 +48,7 @@ void evaluate_bfknn(
     bfKnn(res, args);
 
     std::stringstream str;
-    str << "using raft " << args.use_raft << "metric " << metric
+    str << "using raft " << args.use_raft << " metric " << metric
         << " colMajorVecs " << colMajorVecs << " colMajorQueries "
         << colMajorQueries;
 
@@ -86,6 +86,7 @@ void testTransposition(
     int numQuery = randVal(1, 1024);
     int k = std::min(numVecs, randVal(20, 70));
 
+    printf("data dimension %d, numVecs=%d, numQuery=%d, query the the %d minimum distances to vecs per queryVec\n", dim, numVecs, numQuery, k);
     // Input data for CPU
     std::vector<float> vecs = randVecs(numVecs, dim);
     std::vector<float> queries = randVecs(numQuery, dim);

@@ -197,6 +197,7 @@ void runDistance(
             tileRows,
             tileCols);
 
+    printf("choose Tile Size: tileRows=%ld, tileCols:%ld\n", tileRows, tileCols);
     idx_t numColTiles = utils::divUp(numCentroids, tileCols);
 
     // We can have any number of vectors to query against, even less than k, in

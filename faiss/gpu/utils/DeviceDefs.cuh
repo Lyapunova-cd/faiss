@@ -22,7 +22,7 @@ constexpr int kWarpSize = 64;
 
 // This is a memory barrier for intra-warp writes to shared memory.
 __forceinline__ __device__ void warpFence() {
-    //TODO(Hongwei.Liu): figure out whether Iluvatar compiler supports __syncwarp() or __threadfence_block()
+    /* BI-V100 forces to sync all operation in warp */
 #if CUDA_VERSION >= 9000
     __syncwarp();
 #else

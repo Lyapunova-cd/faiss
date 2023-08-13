@@ -265,6 +265,7 @@ void compareLists(
                 EXPECT_LE(relErr, maxRelativeError)
                         << configMsg << " (" << query << ", " << result
                         << ") refD: " << refD << " testD: " << testD;
+                // printf("(%d, %d), refD: %.6f, testD:%.6f\n", query, result, refD, testD);
             }
 
             maxRelErr = std::max(maxRelErr, relErr);

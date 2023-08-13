@@ -168,7 +168,7 @@ struct BlockSelect {
                 utils::isPowerOf2(NumWarpQ), "warp queue must be power-of-2");
 
         // Fill the per-thread queue keys with the default value
-#pragma unroll
+// #pragma unroll
         for (int i = 0; i < NumThreadQ; ++i) {
             threadK[i] = initK;
             threadV[i] = initV;
@@ -192,7 +192,7 @@ struct BlockSelect {
     __device__ inline void addThreadQ(K k, V v) {
         if (Dir ? Comp::gt(k, warpKTop) : Comp::lt(k, warpKTop)) {
             // Rotate right
-#pragma unroll
+// #pragma unroll
             for (int i = NumThreadQ - 1; i > 0; --i) {
                 threadK[i] = threadK[i - 1];
                 threadV[i] = threadV[i - 1];
@@ -207,16 +207,12 @@ struct BlockSelect {
     __device__ inline void checkThreadQ() {
         bool needSort = (numVals == NumThreadQ);
 
-#if CUDA_VERSION >= 9000
-        needSort = __any_sync(0xffffffff, needSort);
-#else
         needSort = __any(needSort);
-#endif
 
-        if (!needSort) {
-            // no lanes have triggered a sort
-            return;
-        }
+        // if (!needSort) {
+        //     // no lanes have triggered a sort
+        //     return;
+        // }
 
         // This has a trailing warpFence
         mergeWarpQ();
@@ -225,7 +221,7 @@ struct BlockSelect {
         // free to reset the thread queues
         numVals = 0;
 
-#pragma unroll
+// #pragma unroll
         for (int i = 0; i < NumThreadQ; ++i) {
             threadK[i] = initK;
             threadV[i] = initV;
@@ -250,7 +246,7 @@ struct BlockSelect {
         K warpKRegisters[kNumWarpQRegisters];
         V warpVRegisters[kNumWarpQRegisters];
 
-#pragma unroll
+// #pragma unroll
         for (int i = 0; i < kNumWarpQRegisters; ++i) {
             warpKRegisters[i] = warpK[i * kWarpSize + laneId];
             warpVRegisters[i] = warpV[i * kWarpSize + laneId];
@@ -271,7 +267,7 @@ struct BlockSelect {
                 false>(warpKRegisters, warpVRegisters, threadK, threadV);
 
         // Write back out the warp queue
-#pragma unroll
+// #pragma unroll
         for (int i = 0; i < kNumWarpQRegisters; ++i) {
             warpK[i * kWarpSize + laneId] = warpKRegisters[i];
             warpV[i * kWarpSize + laneId] = warpVRegisters[i];
@@ -490,10 +486,10 @@ struct WarpSelect {
         needSort = __any(needSort);
 #endif
 
-        if (!needSort) {
-            // no lanes have triggered a sort
-            return;
-        }
+        // if (!needSort) {
+        //     // no lanes have triggered a sort
+        //     return;
+        // }
 
         mergeWarpQ();
 

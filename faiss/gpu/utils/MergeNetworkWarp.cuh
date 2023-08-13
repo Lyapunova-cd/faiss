@@ -122,7 +122,7 @@ inline __device__ void warpBitonicMergeLE16(K& k, V& v) {
         }
     }
 
-#pragma unroll
+// #pragma unroll
     for (int stride = IsBitonic ? L : L / 2; stride > 0; stride /= 2) {
         K otherK = shfl_xor(k, stride);
         V otherV = shfl_xor(v, stride);
@@ -164,7 +164,7 @@ template <typename K, typename V, bool Dir, typename Comp, bool Low>
 struct BitonicMergeStep<K, V, 1, Dir, Comp, Low, true> {
     static inline __device__ void merge(K k[1], V v[1]) {
         // Use warp shuffles
-        warpBitonicMergeLE16<K, V, 16, Dir, Comp, true>(k[0], v[0]);
+        warpBitonicMergeLE16<K, V, 32, Dir, Comp, true>(k[0], v[0]);
     }
 };
 
@@ -174,7 +174,7 @@ struct BitonicMergeStep<K, V, N, Dir, Comp, Low, true> {
         static_assert(utils::isPowerOf2(N), "must be power of 2");
         static_assert(N > 1, "must be N > 1");
 
-#pragma unroll
+// #pragma unroll
         for (int i = 0; i < N / 2; ++i) {
             K& ka = k[i];
             V& va = v[i];
@@ -191,7 +191,7 @@ struct BitonicMergeStep<K, V, N, Dir, Comp, Low, true> {
             K newK[N / 2];
             V newV[N / 2];
 
-#pragma unroll
+// #pragma unroll
             for (int i = 0; i < N / 2; ++i) {
                 newK[i] = k[i];
                 newV[i] = v[i];
@@ -200,7 +200,7 @@ struct BitonicMergeStep<K, V, N, Dir, Comp, Low, true> {
             BitonicMergeStep<K, V, N / 2, Dir, Comp, true, true>::merge(
                     newK, newV);
 
-#pragma unroll
+// #pragma unroll
             for (int i = 0; i < N / 2; ++i) {
                 k[i] = newK[i];
                 v[i] = newV[i];
@@ -211,7 +211,7 @@ struct BitonicMergeStep<K, V, N, Dir, Comp, Low, true> {
             K newK[N / 2];
             V newV[N / 2];
 
-#pragma unroll
+// #pragma unroll
             for (int i = 0; i < N / 2; ++i) {
                 newK[i] = k[i + N / 2];
                 newV[i] = v[i + N / 2];
@@ -220,7 +220,7 @@ struct BitonicMergeStep<K, V, N, Dir, Comp, Low, true> {
             BitonicMergeStep<K, V, N / 2, Dir, Comp, false, true>::merge(
                     newK, newV);
 
-#pragma unroll
+// #pragma unroll
             for (int i = 0; i < N / 2; ++i) {
                 k[i + N / 2] = newK[i];
                 v[i + N / 2] = newV[i];
@@ -348,7 +348,7 @@ struct BitonicMergeStep<K, V, N, Dir, Comp, false, false> {
             K newK[kLowSize];
             V newV[kLowSize];
 
-#pragma unroll
+// #pragma unroll
             for (int i = 0; i < kLowSize; ++i) {
                 newK[i] = k[i];
                 newV[i] = v[i];
@@ -367,7 +367,7 @@ struct BitonicMergeStep<K, V, N, Dir, Comp, false, false> {
                     true, // low
                     kLowIsPowerOf2>::merge(newK, newV);
 
-#pragma unroll
+// #pragma unroll
             for (int i = 0; i < kLowSize; ++i) {
                 k[i] = newK[i];
                 v[i] = newV[i];
@@ -529,7 +529,7 @@ struct BitonicSortStep<K, V, 1, Dir, Comp> {
     static inline __device__ void sort(K k[1], V v[1]) {
         // Update this code if this changes
         // should go from 1 -> kWarpSize in multiples of 2
-        // static_assert(kWarpSize == 32, "unexpected warp size");
+        static_assert(kWarpSize == 64, "unexpected warp size");
 
         warpBitonicMergeLE16<K, V, 1, Dir, Comp, false>(k[0], v[0]);
         warpBitonicMergeLE16<K, V, 2, Dir, Comp, false>(k[0], v[0]);
