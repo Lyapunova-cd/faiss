@@ -65,7 +65,7 @@ __launch_bounds__(kWarps* kLanes) __global__ void binaryDistanceAnySize(
                     queryInBounds && kInBounds ? query[warpQuery][laneK] : 0;
 
             // kWarps warps are responsible for loading 32 vecs
-#pragma unroll
+// #pragma unroll
             for (int i = 0; i < kLanes / kWarps; ++i) {
                 int warpVec = i * kWarps + warpId;
                 idx_t vec = blockVec + warpVec;
@@ -78,7 +78,7 @@ __launch_bounds__(kWarps* kLanes) __global__ void binaryDistanceAnySize(
             __syncthreads();
 
             // Compare distances
-#pragma unroll
+// #pragma unroll
             for (int i = 0; i < kLanes; ++i) {
                 threadDistance +=
                         __popc(queryTile[warpId][i] ^ vecTile[laneId][i]);
@@ -150,7 +150,7 @@ __global__ void __launch_bounds__(kWarps* kLanes) binaryDistanceLimitSize(
         int threadDistance = 0;
 
         // kWarps warps are responsible for loading 32 vecs
-#pragma unroll
+// #pragma unroll
         for (int i = 0; i < kLanes / kWarps; ++i) {
             int warpVec = i * kWarps + warpId;
             idx_t vec = blockVec + warpVec;
@@ -163,7 +163,7 @@ __global__ void __launch_bounds__(kWarps* kLanes) binaryDistanceLimitSize(
         __syncthreads();
 
         // Compare distances
-#pragma unroll
+// #pragma unroll
         for (int i = 0; i < ReductionLimit; ++i) {
             threadDistance += __popc(queryTile[warpId][i] ^ vecTile[laneId][i]);
         }

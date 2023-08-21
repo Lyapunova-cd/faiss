@@ -19,7 +19,7 @@ namespace gpu {
 
 template <typename T, typename Op, int ReduceWidth = kWarpSize>
 __device__ inline T warpReduceAll(T val, Op op) {
-#pragma unroll
+// #pragma unroll
     for (int mask = ReduceWidth / 2; mask > 0; mask >>= 1) {
         val = op(val, shfl_xor(val, mask));
     }

@@ -187,6 +187,36 @@ void GpuIndexFlat::add(idx_t n, const float* x) {
     }
 }
 
+#if defined USE_NVIDIA_GDS
+void GpuIndexFlat::add(idx_t n, int fd) {
+    DeviceScope scope(config_.device);
+
+    FAISS_THROW_IF_NOT_MSG(this->is_trained, "Index not trained");
+    FAISS_THROW_IF_NOT_MSG(fd <= 0, "file handle is invalid");
+
+    if (n == 0) {
+        // nothing to add
+        return;
+    }
+
+    resources_->registerFileHandleCurrentDevice(fd);
+
+    // To avoid multiple re-allocations, ensure we have enough storage
+    // available
+    data_->reserve(n, resources_->getDefaultStream(config_.device));
+
+    // If we're not operating in float16 mode, we don't need the input
+    // data to be resident on our device; we can add directly.
+    if (!flatConfig_.useFloat16) {
+        data_->add(fd, n, resources_->getDefaultStream(config_.device));
+    } else {
+        FAISS_ASSERT(false);
+        // Otherwise, perform the paging
+        // GpuIndex::add(n, x);
+    }
+}
+#endif
+
 bool GpuIndexFlat::addImplRequiresIDs_() const {
     return false;
 }

@@ -47,7 +47,7 @@ endif()
 cmake_policy(SET CMP0135 NEW)
 include(FetchContent)
 FetchContent_Declare(googletest
-  URL "https://github.com/google/googletest/archive/release-1.12.1.tar.gz")
+  URL "https://hub.njuu.cf/google/googletest/archive/refs/tags/release-1.12.1.tar.gz")
 set(BUILD_GMOCK CACHE BOOL OFF)
 set(INSTALL_GTEST CACHE BOOL OFF)
 FetchContent_MakeAvailable(googletest)

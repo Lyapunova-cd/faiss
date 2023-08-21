@@ -238,6 +238,9 @@ endfunction()
 
 generate_ivf_interleaved_code()
 
+target_compile_options(faiss PRIVATE -std=c++11)
+target_compile_options(faiss_avx2 PRIVATE -std=c++11)
+
 if(FAISS_ENABLE_RAFT)
   list(APPEND FAISS_GPU_HEADERS
           impl/RaftFlatIndex.cuh)
@@ -246,6 +249,11 @@ if(FAISS_ENABLE_RAFT)
 
   target_compile_definitions(faiss PUBLIC USE_NVIDIA_RAFT=1)
   target_compile_definitions(faiss_avx2 PUBLIC USE_NVIDIA_RAFT=1)
+endif()
+
+if(FAISS_ENABLE_GDS)
+  target_compile_definitions(faiss PUBLIC USE_NVIDIA_GDS=1)
+  target_compile_definitions(faiss_avx2 PUBLIC USE_NVIDIA_GDS=1)
 endif()
 
 # Export FAISS_GPU_HEADERS variable to parent scope.
@@ -261,9 +269,15 @@ foreach(header ${FAISS_GPU_HEADERS})
   )
 endforeach()
 
-# set(CMAKE_CUDA_FLAGS "-fPIC --cuda-gpu-arch=ivcore10 --cuda-path=/usr/local/corex")
 find_package(CUDAToolkit REQUIRED)
-target_link_libraries(faiss PRIVATE CUDA::cudart CUDA::cublas $<$<BOOL:${FAISS_ENABLE_RAFT}>:raft::raft> $<$<BOOL:${FAISS_ENABLE_RAFT}>:nvidia::cutlass::cutlass>)
-target_link_libraries(faiss_avx2 PRIVATE CUDA::cudart CUDA::cublas $<$<BOOL:${FAISS_ENABLE_RAFT}>:raft::raft> $<$<BOOL:${FAISS_ENABLE_RAFT}>:nvidia::cutlass::cutlass>)
-# target_compile_options(faiss PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-Xfatbin=-compress-all --expt-extended-lambda --expt-relaxed-constexpr>)
-# target_compile_options(faiss_avx2 PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-Xfatbin=-compress-all --expt-extended-lambda --expt-relaxed-constexpr>)
+target_link_libraries(faiss PRIVATE
+  CUDA::cudart
+  CUDA::cublas
+  $<$<BOOL:${FAISS_ENABLE_RAFT}>:raft::raft>
+  $<$<BOOL:${FAISS_ENABLE_RAFT}>:nvidia::cutlass::cutlass>)
+
+target_link_libraries(faiss_avx2 PRIVATE
+  CUDA::cudart
+  CUDA::cublas
+  $<$<BOOL:${FAISS_ENABLE_RAFT}>:raft::raft>
+  $<$<BOOL:${FAISS_ENABLE_RAFT}>:nvidia::cutlass::cutlass>)

@@ -191,6 +191,7 @@ jobs:
                   -DBUILD_SHARED_LIBS=OFF \
                   -DFAISS_ENABLE_GPU=<< parameters.gpu >> \
                   -DFAISS_ENABLE_RAFT=<< parameters.raft >> \
+                  -DFAISS_ENABLE_GDS=<< parameters.gds >> \
                   -DFAISS_OPT_LEVEL=<< parameters.opt_level >> \
                   -DFAISS_ENABLE_C_API=ON \
                   -DPYTHON_EXECUTABLE=$(which python) \

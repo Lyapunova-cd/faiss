@@ -84,7 +84,9 @@ class GpuIndexFlat : public GpuIndex {
 
     /// Overrides to avoid excessive copies
     void add(idx_t, const float* x) override;
-
+#if defined USE_NVIDIA_GDS
+    void add(idx_t, const int fd) override;
+#endif
     /// Reconstruction methods; prefer the batch reconstruct as it will
     /// be more efficient
     void reconstruct(idx_t key, float* out) const override;

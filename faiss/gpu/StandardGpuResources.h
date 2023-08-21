@@ -35,6 +35,7 @@
 #include <functional>
 #include <map>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace faiss {
@@ -84,6 +85,11 @@ class StandardGpuResourcesImpl : public GpuResources {
     /// Returns the raft handle for the given device which can be used to
     /// make calls to other raft primitives.
     raft::device_resources& getRaftHandle(int device) override;
+#endif
+
+#if defined USE_NVIDIA_GDS
+    void registerFileHandle(int fd, int device) override;
+    void* getFileHandle(int fd) override;
 #endif
 
     /// Called to change the work ordering streams to the null stream
@@ -176,6 +182,11 @@ class StandardGpuResourcesImpl : public GpuResources {
     std::unique_ptr<rmm::mr::host_memory_resource> pmr;
 #endif
 
+#if defined USE_NVIDIA_GDS
+    /// cuFile handle for each file descriptor
+    std::unordered_map<int, CUfileHandle_t> cuFileHandles_;
+#endif
+
     /// Pinned memory allocation for use with this GPU
     void* pinnedMemAlloc_;
     size_t pinnedMemAllocSize_;
@@ -242,6 +253,11 @@ class StandardGpuResources : public GpuResourcesProvider {
     /// Returns the raft handle for the given device which can be used to
     /// make calls to other raft primitives.
     raft::device_resources& getRaftHandle(int device);
+#endif
+
+#if defined USE_NVIDIA_GDS
+    void registerFileHandleCurrentDevice(int fd);
+    void* getcuFileHandle(int fd);
 #endif
 
     /// Returns the current amount of temp memory available

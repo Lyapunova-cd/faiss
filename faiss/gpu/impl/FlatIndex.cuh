@@ -92,7 +92,9 @@ class FlatIndex {
     /// Add vectors to ourselves; the pointer passed can be on the host
     /// or the device
     void add(const float* data, idx_t numVecs, cudaStream_t stream);
-
+#if defined USE_NVIDIA_GDS
+    void add(const int fd, idx_t numVecs, cudaStream_t stream);
+#endif
     /// Free all storage
     void reset();
 

@@ -291,6 +291,31 @@ void FlatIndex::add(const float* data, idx_t numVecs, cudaStream_t stream) {
     }
 }
 
+#if defined USE_NVIDIA_GDS
+void FlatIndex::add(const int fd, idx_t numVecs, cudaStream_t stream) {
+    if (numVecs == 0) {
+        return;
+    }
+
+    // add to float32 data
+    rawData32_.append(
+            nullptr,
+            (size_t)dim_ * numVecs * sizeof(float),
+            stream,
+            true, /* reserve exactly */
+            fd);
+    
+    num_ += numVecs;
+
+    DeviceTensor<float, 1, true> norms(
+            resources_,
+            makeSpaceAlloc(AllocType::FlatData, space_, stream),
+            {num_});
+    runL2Norm(vectors_, true, norms, true, stream);
+    norms_ = std::move(norms);
+}
+#endif
+
 void FlatIndex::reset() {
     rawData32_.clear();
     rawData16_.clear();

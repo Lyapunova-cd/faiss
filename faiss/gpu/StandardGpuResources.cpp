@@ -305,6 +305,19 @@ void StandardGpuResourcesImpl::initializeForDevice(int device) {
     FAISS_ASSERT(device < getNumDevices());
     DeviceScope scope(device);
 
+#if defined USE_NVIDIA_GDS
+    auto status = cuFileDriverOpen();
+    if (status.err != CU_FILE_SUCCESS) {
+        printf(" cuFile driver failed to open \n");
+    }
+    FAISS_ASSERT_FMT(
+        status.err == CU_FILE_SUCCESS,
+        "cuFile driver failed to open on device %d,"
+        "(error %d)",
+        device,
+        (int)status.err);
+#endif
+
     // If this is the first device that we're initializing, create our
     // pinned memory allocation
     if (defaultStreams_.empty() && pinnedMemSize_ > 0) {
@@ -347,7 +360,6 @@ void StandardGpuResourcesImpl::initializeForDevice(int device) {
             device,
             prop.major,
             prop.minor);
-    // TODO(Hongwei.Liu): figure out whether BI-V100 >= 3
 
     // Our code is pre-built with and expects warpSize == 32, validate that
     FAISS_ASSERT_FMT(
@@ -439,6 +451,32 @@ raft::device_resources& StandardGpuResourcesImpl::getRaftHandle(int device) {
 
     // Otherwise, our base default handle
     return raftHandles_[device];
+}
+#endif
+
+#if defined USE_NVIDIA_GDS
+void StandardGpuResourcesImpl::registerFileHandle(int fd, int device) {
+    initializeForDevice(device);
+
+    CUfileDescr_t desc;
+    CUfileHandle_t handle;
+    memset((void *)&desc, 0, sizeof(CUfileDescr_t));
+
+    desc.handle.fd = fd;
+    desc.type = CU_FILE_HANDLE_TYPE_OPAQUE_FD;
+
+    auto status = cuFileHandleRegister(&handle, &desc);
+    FAISS_ASSERT_FMT(
+        status.err == CU_FILE_SUCCESS,
+        "Register file descriptor %d failed: %d",
+        fd,
+        status.err);
+    
+    cuFileHandles_.insert(std::make_pair(fd, handle));
+}
+
+void* StandardGpuResourcesImpl::getFileHandle(int fd) {
+    return cuFileHandles_[fd];
 }
 #endif
 
@@ -559,6 +597,14 @@ void* StandardGpuResourcesImpl::allocMemory(const AllocRequest& req) {
         FAISS_ASSERT_FMT(false, "unknown MemorySpace %d", (int)adjReq.space);
     }
 
+#if defined USE_NVIDIA_GDS
+    auto status = cuFileBufRegister(p, adjReq.size, 0);
+    FAISS_ASSERT_FMT(
+        status.err == CU_FILE_SUCCESS,
+        "buffer registration failed %d",
+        status.err);
+#endif
+
     if (allocLogging_) {
         std::cout << "StandardGpuResources: alloc ok " << adjReq.toString()
                   << " ptr 0x" << p << "\n";
@@ -599,6 +645,14 @@ void StandardGpuResourcesImpl::deallocMemory(int device, void* p) {
             mmr->deallocate(p, req.size, req.stream);
         }
 #else
+
+#if defined USE_NVIDIA_GDS
+        auto status = cuFileBufDeregister(p);
+        FAISS_ASSERT_FMT(
+            status.err == CU_FILE_SUCCESS,
+            "buffer deregister failed %d",
+            status.err);
+#endif
         auto err = cudaFree(p);
         FAISS_ASSERT_FMT(
                 err == cudaSuccess,
@@ -693,6 +747,16 @@ cudaStream_t StandardGpuResources::getDefaultStream(int device) {
 #if defined USE_NVIDIA_RAFT
 raft::device_resources& StandardGpuResources::getRaftHandle(int device) {
     return res_->getRaftHandle(device);
+}
+#endif
+
+#if defined USE_NVIDIA_GDS
+void StandardGpuResources::registerFileHandleCurrentDevice(int fd) {
+    res_->registerFileHandle(fd, getCurrentDevice());
+}
+
+void* StandardGpuResources::getcuFileHandle(int fd) {
+    res_->getFileHandle(fd);
 }
 #endif
 

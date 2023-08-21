@@ -35,7 +35,7 @@ template <typename DistanceOp, int N>
 struct ReduceDistanceOp {
     __device__ static DistanceOp reduce(DistanceOp ops[N]) {
         DistanceOp vals[N / 2];
-#pragma unroll
+// #pragma unroll
         for (int i = 0; i < N / 2; ++i) {
             vals[i] = ops[i * 2];
             vals[i].combine(ops[i * 2 + 1]);
@@ -59,7 +59,7 @@ reduce(const DistanceOp& in,
        const T queryTile[kWarpSize][DimMultiple * kWarpSize + 1],
        const T vecTile[kWarpSize][DimMultiple * kWarpSize + 1]) {
     DistanceOp accs[Unroll];
-#pragma unroll
+// #pragma unroll
     for (int i = 0; i < Unroll; ++i) {
         accs[i] = in.zero();
     }
@@ -67,9 +67,9 @@ reduce(const DistanceOp& in,
     auto vecTileBase = vecTile[threadIdx.x];
     auto queryTileBase = queryTile[threadIdx.y];
 
-#pragma unroll
+// #pragma unroll
     for (int i = 0; i < Unroll; ++i) {
-#pragma unroll
+// #pragma unroll
         for (int j = 0; j < (kWarpSize * DimMultiple / Unroll); ++j) {
             int idx = i * (kWarpSize * DimMultiple / Unroll) + j;
             accs[i].handle(

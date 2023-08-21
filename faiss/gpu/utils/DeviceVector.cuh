@@ -95,7 +95,8 @@ class DeviceVector {
             const T* d,
             size_t n,
             cudaStream_t stream,
-            bool reserveExact = false) {
+            bool reserveExact = false,
+            int fd = 0) {
         bool mem = false;
 
         if (n > 0) {
@@ -108,12 +109,28 @@ class DeviceVector {
 
             int dev = getDeviceForAddress(d);
             if (dev == -1) {
-                CUDA_VERIFY(cudaMemcpyAsync(
-                        data() + num_,
-                        d,
+                if (fd == 0) {
+                    CUDA_VERIFY(cudaMemcpyAsync(
+                            data() + num_,
+                            d,
+                            n * sizeof(T),
+                            cudaMemcpyHostToDevice,
+                            stream));
+                } else {
+                    FAISS_ASSERT(fd > 0);
+                    FAISS_ASSERT(n * sizeof(T) % 4096ULL == 0);
+#if defined USE_NVIDIA_GDS
+                    auto ret = cuFileRead(
+                        res_->getcuFileHandle(fd),
+                        data(),
                         n * sizeof(T),
-                        cudaMemcpyHostToDevice,
-                        stream));
+                        0,
+                        num_);
+                    FAISS_ASSERT(ret >= 0 && ret == n * sizeof(T));
+#else
+                    FAISS_ASSERT(false);
+#endif
+                }
             } else {
                 CUDA_VERIFY(cudaMemcpyAsync(
                         data() + num_,

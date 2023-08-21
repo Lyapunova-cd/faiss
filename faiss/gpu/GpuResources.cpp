@@ -174,6 +174,16 @@ raft::device_resources& GpuResources::getRaftHandleCurrentDevice() {
 }
 #endif
 
+#if defined USE_NVIDIA_GDS
+void GpuResources::registerFileHandleCurrentDevice(int fd) {
+    registerFileHandle(fd, getCurrentDevice());
+}
+
+void* GpuResources::getcuFileHandle(int fd) {
+    return getFileHandle(fd);
+}
+#endif
+
 std::vector<cudaStream_t> GpuResources::getAlternateStreamsCurrentDevice() {
     return getAlternateStreams(getCurrentDevice());
 }

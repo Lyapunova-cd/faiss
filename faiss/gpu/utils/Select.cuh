@@ -448,14 +448,14 @@ struct WarpSelect {
                 utils::isPowerOf2(NumWarpQ), "warp queue must be power-of-2");
 
         // Fill the per-thread queue keys with the default value
-#pragma unroll
+// #pragma unroll
         for (int i = 0; i < NumThreadQ; ++i) {
             threadK[i] = initK;
             threadV[i] = initV;
         }
 
         // Fill the warp queue with the default value
-#pragma unroll
+// #pragma unroll
         for (int i = 0; i < kNumWarpQRegisters; ++i) {
             warpK[i] = initK;
             warpV[i] = initV;
@@ -465,7 +465,7 @@ struct WarpSelect {
     __device__ inline void addThreadQ(K k, V v) {
         if (Dir ? Comp::gt(k, warpKTop) : Comp::lt(k, warpKTop)) {
             // Rotate right
-#pragma unroll
+// #pragma unroll
             for (int i = NumThreadQ - 1; i > 0; --i) {
                 threadK[i] = threadK[i - 1];
                 threadV[i] = threadV[i - 1];
@@ -497,7 +497,7 @@ struct WarpSelect {
         // free to reset the thread queues
         numVals = 0;
 
-#pragma unroll
+// #pragma unroll
         for (int i = 0; i < NumThreadQ; ++i) {
             threadK[i] = initK;
             threadV[i] = initV;

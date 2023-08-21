@@ -34,6 +34,10 @@
 #include <raft/core/device_resources.hpp>
 #endif
 
+#if defined USE_NVIDIA_GDS
+#include <nvcufile.h>
+#endif
+
 namespace faiss {
 namespace gpu {
 
@@ -211,6 +215,14 @@ class GpuResources {
     /// make calls to other raft primitives.
     virtual raft::device_resources& getRaftHandle(int device) = 0;
     raft::device_resources& getRaftHandleCurrentDevice();
+#endif
+
+#if defined USE_NVIDIA_GDS
+    virtual void registerFileHandle(int fd, int device) = 0;
+    void registerFileHandleCurrentDevice(int fd);
+
+    virtual void* getFileHandle(int fd) = 0;
+    void* getcuFileHandle(int fd);
 #endif
 
     /// Overrides the default stream for a device to the user-supplied stream.
