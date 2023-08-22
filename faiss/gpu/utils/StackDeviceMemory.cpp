@@ -189,6 +189,7 @@ std::string StackDeviceMemory::toString() const {
 
 void* StackDeviceMemory::allocMemory(cudaStream_t stream, size_t size) {
     // All allocations should have been adjusted to a multiple of 16 bytes
+    // TODO(Hongwei.Liu): need to check this on BT-V100
     FAISS_ASSERT(size % 16 == 0);
     return stack_.getAlloc(size, stream);
 }

@@ -192,7 +192,7 @@ void GpuIndexFlat::add(idx_t n, int fd) {
     DeviceScope scope(config_.device);
 
     FAISS_THROW_IF_NOT_MSG(this->is_trained, "Index not trained");
-    FAISS_THROW_IF_NOT_MSG(fd <= 0, "file handle is invalid");
+    FAISS_THROW_IF_NOT_MSG(fd > 0, "file handle is invalid");
 
     if (n == 0) {
         // nothing to add

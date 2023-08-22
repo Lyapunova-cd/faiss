@@ -598,11 +598,13 @@ void* StandardGpuResourcesImpl::allocMemory(const AllocRequest& req) {
     }
 
 #if defined USE_NVIDIA_GDS
-    auto status = cuFileBufRegister(p, adjReq.size, 0);
-    FAISS_ASSERT_FMT(
-        status.err == CU_FILE_SUCCESS,
-        "buffer registration failed %d",
-        status.err);
+    if (adjReq.space != MemorySpace::Temporary) {
+        auto status = cuFileBufRegister(p, adjReq.size, 0);
+        FAISS_ASSERT_FMT(
+            status.err == CU_FILE_SUCCESS,
+            "buffer registration failed %d",
+            status.err);
+    }
 #endif
 
     if (allocLogging_) {

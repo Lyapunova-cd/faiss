@@ -105,6 +105,16 @@ void GpuIndex::add(idx_t n, const float* x) {
     add_with_ids(n, x, nullptr);
 }
 
+#if defined USE_NVIDIA_GDS
+void GpuIndex::add(idx_t n, int fd) {
+    if (n == 0) {
+        return;
+    }
+
+    FAISS_ASSERT(fd > 0);
+}
+#endif
+
 void GpuIndex::add_with_ids(idx_t n, const float* x, const idx_t* ids) {
     DeviceScope scope(config_.device);
     FAISS_THROW_IF_NOT_MSG(this->is_trained, "Index not trained");

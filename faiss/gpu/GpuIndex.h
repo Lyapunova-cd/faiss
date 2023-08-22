@@ -143,6 +143,7 @@ class GpuIndex : public faiss::Index {
             float* distances,
             idx_t* labels,
             const SearchParameters* params) const = 0;
+
 #if defined USE_NVIDIA_GDS
     virtual void add(idx_t, const int fd);
 #endif
